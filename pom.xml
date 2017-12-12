@@ -120,6 +120,12 @@
 			<classifier>jdk15</classifier>
 		</dependency>
 
+		<!-- json -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-redis</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
