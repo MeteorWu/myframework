@@ -20,22 +20,27 @@ public class UserService {
     @Autowired
     private UserJpaDao userJpaDao;
 
-    @CachePut(value = "users", key = "#user.getUserId()")
-    public void save(User user) {
+    @CachePut(value = "redis", key = "#user.getUserId()")// 如果这里有key设置，那么redisConfig里面的KeyGenerator会忽略
+    public User save(User user) {
         User user1 = userJpaDao.save(user);
+        return user1;
     }
 
-    @Cacheable(value = "users")
+    @CachePut(value = "redis", key = "#user.getUserId()")
+    public User update(User user){
+        return userJpaDao.save(user);
+    }
+
+    @Cacheable(value = "redis", key = "#id")
     public User getById(String id) {
-        return userJpaDao.getOne(id);
+        return userJpaDao.findOne(id);
     }
 
-    @Cacheable(value = "users")
     public List<User> getAll() {
         return userJpaDao.findAll();
     }
 
-    @CacheEvict(value = "users", key = "#id", condition = "#id")
+    @CacheEvict(value = "redis", key = "#id")
     public void delete(String id) {
         userJpaDao.delete(id);
     }
