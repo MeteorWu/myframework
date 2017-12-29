@@ -1,7 +1,8 @@
 package com.framework.meteor.framework.mq;
 
+import com.framework.meteor.work.seckill.model.Seckill;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.support.CorrelationData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import java.util.UUID;
  * @author Meteor.wu
  * @since 2017/12/18 16:16
  */
+@Slf4j
 @Component
 public class Sender implements RabbitTemplate.ConfirmCallback, RabbitTemplate.ReturnCallback {
     @Autowired
@@ -40,9 +42,10 @@ public class Sender implements RabbitTemplate.ConfirmCallback, RabbitTemplate.Re
         rabbitTemplate.setReturnCallback(this);
     }
 
-    public void send(String msg){
-        Message message = MessageBuilder.withBody(msg.getBytes()).setMessageId("123").build();
+    public void send(Seckill seckill){
+
         CorrelationData correlationId = new CorrelationData(UUID.randomUUID().toString());
-        rabbitTemplate.convertAndSend(RabbitmqConfig.SECKILL_FANOUT_EXCHANGE, RabbitmqConfig.SECKILL_QUEUE_NAME,msg, correlationId);
+        Object ret = rabbitTemplate.convertSendAndReceive(RabbitmqConfig.SECKILL_FANOUT_EXCHANGE, RabbitmqConfig.SECKILL_QUEUE_NAME,seckill, correlationId);
+        log.info("return message is " + ret);
     }
 }

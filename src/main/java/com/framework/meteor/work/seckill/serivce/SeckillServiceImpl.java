@@ -23,6 +23,6 @@ public class SeckillServiceImpl  {
     }
 
     public void seckill(Seckill seckill) {
-        sender.send(seckill.getId());
+        sender.send(seckill);
     }
 }
