@@ -47,7 +47,5 @@ public class Sender implements RabbitTemplate.ConfirmCallback, RabbitTemplate.Re
         CorrelationData correlationId = new CorrelationData(UUID.randomUUID().toString());
         Object ret = rabbitTemplate.convertSendAndReceive(RabbitmqConfig.SECKILL_FANOUT_EXCHANGE, RabbitmqConfig.SECKILL_QUEUE_NAME,seckill, correlationId);
         log.info("return message is " + ret);
-        log.info("return message is " + ret);
-
     }
 }
