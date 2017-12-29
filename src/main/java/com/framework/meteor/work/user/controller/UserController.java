@@ -10,6 +10,7 @@ import com.framework.meteor.work.user.model.User;
 import com.framework.meteor.work.user.service.UserService;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ClusterOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.ValueOperations;
@@ -86,9 +87,10 @@ public class UserController {
 
     @PostMapping("/show")
     public Response show(@RequestBody JSONObject jsonObject) {
+
         ValueOperations valueOperations = redisTemplate.opsForValue();
         SetOperations setOperations = redisTemplate.opsForSet();
-
+        ClusterOperations clusterOperations = redisTemplate.opsForCluster();
         return new ResponseBody<>(ResultMsg.SUCCESS);
     }
 }
