@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cn.boce.cloud.park.user.dao.UserDao">
+<mapper namespace="com.framework.meteor.work.user.dao.UserMyBatisDao">
 
+    <resultMap type="com.framework.meteor.work.user.model.User" id="user">
+        <id property="userId" column="user_id" />
+        <result property="username" column="username" />
+        <result property="password" column="password" />
+        <result property="sex" column="sex" />
+    </resultMap>
+
+    <select id="getById" resultMap="user">
+        SELECT * FROM client where user_id = #{id}
+    </select>
 </mapper>
