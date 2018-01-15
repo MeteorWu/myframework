@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserJpaDao extends JpaRepository<User, String> {
+    User getByPhone(String phone);
 }

@@ -1,6 +1,7 @@
 package com.framework.meteor.work.user.dao;
 
 import com.framework.meteor.work.user.model.User;
+import com.framework.meteor.work.user.model.UserTestRecordDTO;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -30,4 +31,16 @@ public interface UserMyBatisDao {
 
 //    @Delete("DELETE from tb_user where id = #{id} ")
 //    int delete(Integer id);
+
+
+    @Select("select t1.user_id,t1.other_id,t1.other_string, t2.username from other t1 " +
+            "LEFT JOIN user t2 on t1.user_id = t2.user_id " +
+            "where t2.user_id = #{userId}")
+    @Results(id = "ret", value = {
+            @Result(property = "userId",  column = "user_id"),
+            @Result(property = "username",  column = "username"),
+            @Result(property = "otherId",  column = "other_id"),
+            @Result(property = "otherString",  column = "other_string")
+    })
+    UserTestRecordDTO getOtherByUser(String userId);
 }

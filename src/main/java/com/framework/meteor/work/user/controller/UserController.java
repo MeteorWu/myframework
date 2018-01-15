@@ -14,13 +14,7 @@ import org.springframework.data.redis.core.ClusterOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 用户模块管理
@@ -46,7 +40,7 @@ public class UserController {
 
     @PostMapping("/getById")
     public Response getById(@RequestBody JSONObject jsonObject) {
-        return new ResponseBody<>(ResultMsg.SUCCESS, userMyBatisDao.getById("a690f83a6eb648b4a7a32e45a41c1197"));
+        return new ResponseBody<>(ResultMsg.SUCCESS, userMyBatisDao.getById(jsonObject.getString("userId")));
     }
 
     @PostMapping("/getUserList")
@@ -55,13 +49,15 @@ public class UserController {
     }
 
     @PostMapping("/addUser")
-    public Response addUser(@RequestBody JSONObject jsonObject) {
-        User user = new User();
+    public Response addUser(@RequestBody User user) {
         user.setUserId(UUIDUtil.getUUID());
-        user.setUsername("zhagnsan");
-        user.setSex(1);
         userService.save(user);
+        return new ResponseBody<>(ResultMsg.SUCCESS);
+    }
 
+    @PostMapping("/updateUser")
+    public Response updateUser(@RequestBody User user) {
+        userService.update(user);
         return new ResponseBody<>(ResultMsg.SUCCESS);
     }
 
@@ -74,9 +70,7 @@ public class UserController {
     @PostMapping("/getById1")
     public Response getById1(@RequestBody JSONObject jsonObject) {
         User user = userService.getById(jsonObject.getString("id"));
-        List<User> users = new ArrayList<>();
-        users.add(user);
-        return new ResponseBody<>(ResultMsg.SUCCESS, users);
+        return new ResponseBody<>(ResultMsg.SUCCESS, user);
     }
 
     @PostMapping("/delete")
@@ -92,5 +86,10 @@ public class UserController {
         SetOperations setOperations = redisTemplate.opsForSet();
         ClusterOperations clusterOperations = redisTemplate.opsForCluster();
         return new ResponseBody<>(ResultMsg.SUCCESS);
+    }
+
+    @GetMapping("/getOtherByUser")
+    public Response getOtherByUser(String userId) {
+        return new ResponseBody<>(userService.getOtherByUser(userId));
     }
 }

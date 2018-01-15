@@ -30,6 +30,9 @@ public class User extends BaseModel {
     @Column(length = 32)
     private Integer sex;
 
+    @Column(length = 32)
+    private String phone;
+
     public String getUserId() {
         return userId;
     }
@@ -60,5 +63,13 @@ public class User extends BaseModel {
 
     public void setSex(Integer sex) {
         this.sex = sex;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }
