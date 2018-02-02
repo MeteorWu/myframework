@@ -3,7 +3,6 @@ package com.framework.meteor.framework.config;
 import com.framework.meteor.framework.interceptor.AuthInterceptor;
 import com.framework.meteor.framework.interceptor.UserRoleInteceptor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -27,15 +26,5 @@ public class WebMvcAppConfigurer extends WebMvcConfigurerAdapter {
                 .excludePathPatterns("/v2/**");
         registry.addInterceptor(new UserRoleInteceptor()).addPathPatterns("/**");
         super.addInterceptors(registry);
-    }
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .maxAge(0)
-                .allowedHeaders("*")
-                .allowCredentials(true)
-                .allowedOrigins("*");
     }
 }
