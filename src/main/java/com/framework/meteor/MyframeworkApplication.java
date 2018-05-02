@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
 @EnableJpaAuditing
+//@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 3600)
 public class MyframeworkApplication {
 
 	public static void main(String[] args) {

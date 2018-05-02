@@ -15,6 +15,7 @@ package com.framework.meteor.framework.datasource.JpaMultiDS;
 //        entityManagerFactoryRef="entityManagerFactoryDb1",
 //        transactionManagerRef="transactionManagerDb1",
 //        basePackages= { "com.framework.meteor.work.user.model" }) //设置Repository所在位置
+//        basePackages= { "com.framework.meteor.work.*.dao" }) //设置Repository所在位置
 public class JpaDbAConfig {
 //    //注入db1数据源
 //    @Autowired
