@@ -1,18 +1,21 @@
 package com.framework.meteor.framework.exception;
 
 import com.framework.meteor.framework.constant.ResultMsg;
-import com.framework.meteor.framework.model.ExceptionEntity;
 import com.framework.meteor.framework.model.Response;
 import com.framework.meteor.framework.model.ResponseBody;
 import com.framework.meteor.framework.service.ExceptionService;
 import com.framework.meteor.framework.util.DateUtil;
+import com.framework.meteor.framework.util.DateUtils;
 import com.framework.meteor.framework.util.StringUtil;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -22,19 +25,23 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 
 /**
  * 全局异常处理
  */
 @ControllerAdvice
 @RestController
+@Slf4j
 public class GlobalDefaultExceptionHandle extends ResponseEntityExceptionHandler {
+
+    @Value("${project.prefix}")
+    private String projectPrefix;
 
     @Value("${adminlog.api.exception}")
     private String adminLogApiException;
     protected String adminLogApiString = "DEBUG";
     private Boolean adminLogApiFlag = false;
-    protected Logger logger = Logger.getLogger(this.getClass());
 
     @Autowired
     private ExceptionService exceptionService;
@@ -47,35 +54,45 @@ public class GlobalDefaultExceptionHandle extends ResponseEntityExceptionHandler
         }
         logger.info("请求地址：" + path);
         logger.error("异常信息：",ex);
-        String errorMsg = ex.getMessage();
-        if(StringUtil.isNotEmpty(errorMsg)) {
-            if(errorMsg.length() > 500) {
-                errorMsg = errorMsg.substring(0,500);
-            }
-        }
-        ResponseBody response = new ResponseBody();
-        String error = ex.toString();
-        error = error.substring(0, error.indexOf(":"));
-        response.setCode(status.value()+"");
-        response.setError(error);
-        response.setMessage(errorMsg);
-        response.setPath(path);
-        response.setTimestamp(DateUtil.getCurrentDateString());
 
-        String userId = null;
-        String clientType = null;
-        String version = null;//版本号
-        if(null != request.getParameter("userId")) {
-            userId = request.getParameter("userId");
+        ResponseBody response = null;
+        if(ex instanceof MethodArgumentNotValidException){
+            adminLogApiFlag = false;// 不需要存储的异常
+            MethodArgumentNotValidException exception = (MethodArgumentNotValidException) ex;
+            BindingResult result = exception.getBindingResult();
+            FieldError error = result.getFieldError();
+            String field = error.getField();
+            String code = error.getDefaultMessage();
+            String message = String.format("%s:%s", field, code);
+            log.warn("参数验证失败：" + message);
+
+            response = new ResponseBody();
+            response.setError(ResultMsg.PARAMETER_INCORRECT.getMsg());
+            response.setMessage(message);
+            response.setCode(ResultMsg.PARAMETER_INCORRECT.getCode());
+            response.setTimestamp(DateUtils.getDateStringDefault(new Date()));
+            response.setPath(path);
+        } else {
+            adminLogApiFlag = true;
+            String errorMsg = ex.getMessage();
+            if (StringUtil.isNotEmpty(errorMsg)) {
+                if (errorMsg.length() > 500) {
+                    errorMsg = errorMsg.substring(0, 500);
+                }
+            }
+
+            response = new ResponseBody();
+            String error = ex.toString();
+            error = error.substring(0, error.indexOf(":"));
+            response.setCode(status.value() + "");
+            response.setError(error);
+            response.setMessage(errorMsg);
+            response.setPath(path);
+            response.setTimestamp(DateUtils.getDateStringDefault(new Date()));
         }
-        if(null != request.getParameter("t")) {
-            clientType = request.getParameter("t");
+        if(adminLogApiFlag) {
+            exceptionService.addException(response, request.getParameter("userId"), request.getContextPath());
         }
-        if(null != request.getParameter("v")) {
-            version = request.getParameter("v");
-        }
-        ExceptionEntity exceptionEntity = new ExceptionEntity(status.value()+"", errorMsg, DateUtil.getCurrentDateString(), error, path, userId, clientType, version);
-        exceptionService.addException(exceptionEntity);
         response.setbody(null);
         return new ResponseEntity<Object>(response, status);
     }
@@ -121,20 +138,7 @@ public class GlobalDefaultExceptionHandle extends ResponseEntityExceptionHandler
             response.setPath(path);
         }
         if(adminLogApiFlag) {
-            String userId = null;
-            String clientType = null;
-            String version = null;
-            if(null != request.getParameter("userId")) {
-                userId = request.getParameter("userId");
-            }
-            if(null != request.getParameter("t")) {
-                clientType = request.getParameter("t");
-            }
-            if(null != request.getParameter("v")) {
-                version = request.getParameter("v");
-            }
-            ExceptionEntity exceptionEntity = new ExceptionEntity(response.getCode(), response.getMessage(), DateUtil.getCurrentDateString(), response.getError(), path, userId, clientType, version);
-            exceptionService.addException(exceptionEntity);
+            exceptionService.addException(response, request.getParameter("userId"), request.getContextPath());
         }
 
         response.setbody(null);
@@ -148,7 +152,7 @@ public class GlobalDefaultExceptionHandle extends ResponseEntityExceptionHandler
         int count = 0;
         for (int i = 0; i < stackTraceElements.length; i++) {
             StackTraceElement element = stackTraceElements[i];
-            if (element.getClassName().contains("com.colorfulmall") && !element.getClassName().contains("$")) {
+            if (element.getClassName().contains(projectPrefix) && !element.getClassName().contains("$")) {
                 sb.append("-").append(element.getClassName()).append("-").append(element.getLineNumber());
                 System.out.println(element.getClassName());
                 System.out.println(element.getLineNumber());

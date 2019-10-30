@@ -1,8 +1,11 @@
 package com.framework.meteor.framework.model;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Data
 @Entity
 @Table(name = "system_exception")
 public class ExceptionEntity implements Serializable {
@@ -30,10 +33,13 @@ public class ExceptionEntity implements Serializable {
     @Column(length = 10)
     private String version;
 
+    @Column(length = 100)
+    private String method;
+
     public ExceptionEntity() {
     }
 
-    public ExceptionEntity(String status, String message, String timestamp, String error, String path, String userId, String clientType, String version) {
+    public ExceptionEntity(String status, String message, String timestamp, String error, String path, String userId, String clientType, String version, String method) {
         this.status = status;
         this.message = message;
         this.timestamp = timestamp;
@@ -42,77 +48,6 @@ public class ExceptionEntity implements Serializable {
         this.userId = userId;
         this.clientType = clientType;
         this.version = version;
-    }
-
-    public Long getExceptionId() {
-        return exceptionId;
-    }
-
-    public void setExceptionId(Long exceptionId) {
-        this.exceptionId = exceptionId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getClientType() {
-        return clientType;
-    }
-
-    public void setClientType(String clientType) {
-        this.clientType = clientType;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
+        this.method = method;
     }
 }
