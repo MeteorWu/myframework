@@ -24,6 +24,12 @@ public class ApiException extends ServiceException {
         super(message, cause);
     }
 
+    public ApiException(String code, String msg) {
+        super();
+        this.resultMsg.setCode(code);
+        this.resultMsg.setMsg(msg);
+    }
+
     public ApiException(String message) {
         super(message);
     }
